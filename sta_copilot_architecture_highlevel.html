@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STA GenAI Copilot - High-Level Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 32px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 50px;
+            font-size: 16px;
+        }
+        .architecture {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        .layer {
+            border-radius: 12px;
+            padding: 30px;
+            position: relative;
+        }
+        .layer-title {
+            font-weight: bold;
+            font-size: 24px;
+            margin-bottom: 25px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .layer-icon {
+            font-size: 32px;
+        }
+        .blocks-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .block {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .block:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        .block-icon {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+        .block-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #2d3748;
+        }
+        
+        /* Customer Layer */
+        .customer-layer {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 3px solid #28a745;
+        }
+        .customer-layer .layer-title {
+            color: #155724;
+        }
+        .customer-layer .block {
+            border: 2px solid #28a745;
+        }
+        
+        /* Hybrid Layer */
+        .hybrid-layer {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 3px solid #ffc107;
+        }
+        .hybrid-layer .layer-title {
+            color: #856404;
+        }
+        .hybrid-layer .block {
+            border: 2px solid #ffc107;
+        }
+        
+        /* Consultant Layer */
+        .consultant-layer {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            border: 3px solid #17a2b8;
+        }
+        .consultant-layer .layer-title {
+            color: #0c5460;
+        }
+        .consultant-layer .block {
+            border: 2px solid #17a2b8;
+        }
+        
+        .flow-arrow {
+            text-align: center;
+            padding: 15px 0;
+            font-size: 20px;
+            font-weight: bold;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .flow-arrow::before,
+        .flow-arrow::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #4a5568, transparent);
+        }
+        
+        .security-badge {
+            position: absolute;
+            top: -15px;
+            right: 30px;
+            background: #dc3545;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .key-points {
+            margin-top: 40px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            border-left: 6px solid #6f42c1;
+        }
+        .key-points h3 {
+            color: #6f42c1;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .key-points ul {
+            list-style: none;
+            padding: 0;
+        }
+        .key-points li {
+            padding: 8px 0;
+            font-size: 15px;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .key-points li::before {
+            content: '✓';
+            color: #28a745;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        @media (max-width: 768px) {
+            .blocks-container {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .layer-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 STA GenAI Copilot</h1>
+        <div class="subtitle">High-Level Architecture Overview</div>
+        
+        <div class="architecture">
+            <!-- Customer Premises Layer -->
+            <div class="layer customer-layer">
+                <div class="security-badge">🔒 CUSTOMER CONTROLLED</div>
+                <div class="layer-title">
+                    <span class="layer-icon">🏢</span>
+                    <span>CUSTOMER PREMISES / VPC</span>
+                </div>
+                <div class="blocks-container">
+                    <div class="block">
+                        <div class="block-icon">📁</div>
+                        <div class="block-title">Raw Data Layer</div>
+                    </div>
+                    <div class="block">
+                        <div class="block-icon">⚙️</div>
+                        <div class="block-title">Heuristics Engine</div>
+                    </div>
+                    <div class="block">
+                        <div class="block-icon">🗄️</div>
+                        <div class="block-title">Local Vector DB</div>
+                    </div>
+                    <div class="block">
+                        <div class="block-icon">💻</div>
+                        <div class="block-title">Frontend UI</div>
+                    </div>
+                    <div class="block">
+                        <div class="block-icon">🎯</div>
+                        <div class="block-title">Feature Extractor</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flow-arrow">
+                ⬇ Anonymized Features Only ⬇
+            </div>
+            
+            <!-- Hybrid Communication Layer -->
+            <div class="layer hybrid-layer">
+                <div class="security-badge">🔐 ENCRYPTED TRANSPORT</div>
+                <div class="layer-title">
+                    <span class="layer-icon">🔄</span>
+                    <span>HYBRID COMMUNICATION LAYER</span>
+                </div>
+                <div class="blocks-container">
+                    <div class="block">
+                        <div class="block-icon">🔐</div>
+                        <div class="block-title">API Gateway</div>
+                    </div>
+                    <div class="block">
+                        <div class="block-icon">🔒</div>
+                        <div class="block-title">Secure Channel</div>
+                    </div>
+                    <div class="block">
+                        <div class="block-icon">🔁</div>
+                        <div class="block-title">Response Handler</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flow-arrow">
+                ⬇ Protected Inference Requests ⬇
+            </div>
+            
+            <!-- Consultant Infrastructure Layer -->
+            <div class="layer consultant-layer">
+                <div class="security-badge">🛡️ YOUR PROTECTED IP</div>
+                <div class="layer-title">
+                    <span class="layer-icon">☁️</span>
+                    <span>CONSULTANT INFRASTRUCTURE</span>
+                </div>
+                <div class="blocks-container">
+                    <div class="block">
+                        <div class="block-icon">🤖</div>
+                        <div class="block-title">Base Models</div>
+                    </div>
+                    <div class="block">
+                        <div class="block-icon">🧠</div>
+                        <div class="block-title">RAG Orchestration</div>
+                    </div>
+                    <div class="block">
+                        <div class="block-icon">🎭</div>
+                        <div class="block-title">Agentic Workflows</div>
+                    </div>
+                    <div class="block">
+                        <div class="block-icon">📊</div>
+                        <div class="block-title">Analytics & Training</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-points">
+            <h3>🎯 Architecture Principles</h3>
+            <ul>
+                <li>All sensitive design data remains on customer premises</li>
+                <li>Feature extraction and anonymization happen before any transmission</li>
+                <li>Hybrid layer provides secure, encrypted transport only</li>
+                <li>Your AI models and reasoning logic stay completely protected</li>
+                <li>Customers benefit from intelligence without exposing their IP or seeing yours</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

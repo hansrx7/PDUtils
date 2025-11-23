@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STA GenAI Copilot - Conceptual Architecture</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .architecture {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .layer {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f7fafc;
+        }
+        .layer-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .layer-title .icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .customer-layer {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+        .customer-layer .layer-title {
+            color: #22543d;
+        }
+        .customer-layer .icon {
+            background: #48bb78;
+            color: white;
+        }
+        .hybrid-layer {
+            border-color: #ed8936;
+            background: #fffaf0;
+        }
+        .hybrid-layer .layer-title {
+            color: #7c2d12;
+        }
+        .hybrid-layer .icon {
+            background: #ed8936;
+            color: white;
+        }
+        .consultant-layer {
+            border-color: #4299e1;
+            background: #ebf8ff;
+        }
+        .consultant-layer .layer-title {
+            color: #2c5282;
+        }
+        .consultant-layer .icon {
+            background: #4299e1;
+            color: white;
+        }
+        .blocks {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .block {
+            background: white;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .block-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .block-content {
+            font-size: 12px;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+        .block-content ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        .block-content li {
+            margin: 3px 0;
+        }
+        .arrow {
+            text-align: center;
+            color: #718096;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .security-note {
+            background: #fef5e7;
+            border-left: 4px solid #f39c12;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #6b5416;
+        }
+        .training-section {
+            margin-top: 30px;
+            border: 2px solid #9f7aea;
+            border-radius: 8px;
+            padding: 20px;
+            background: #faf5ff;
+        }
+        .training-title {
+            font-weight: bold;
+            font-size: 18px;
+            color: #553c9a;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .training-title .icon {
+            background: #9f7aea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .training-flow {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .training-step {
+            flex: 1;
+            min-width: 200px;
+            background: white;
+            border: 1px solid #d6bcfa;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .training-step-title {
+            font-weight: 600;
+            color: #553c9a;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        .training-step-content {
+            font-size: 11px;
+            color: #4a5568;
+            line-height: 1.5;
+        }
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #4a5568;
+        }
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid;
+        }
+        .key-principles {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        .key-principles h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #2d3748;
+        }
+        .key-principles ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 12px;
+            color: #4a5568;
+        }
+        .key-principles li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 STA GenAI Copilot - Conceptual Architecture</h1>
+        <div class="subtitle">Secure, Scalable, IP-Protected Design for Timing Closure Assistance</div>
+        
+        <div class="architecture">
+            <!-- Customer Premises Layer -->
+            <div class="layer customer-layer">
+                <div class="layer-title">
+                    <span class="icon">🔒</span>
+                    CUSTOMER PREMISES / VPC (Data Stays Here)
+                </div>
+                <div class="blocks">
+                    <div class="block">
+                        <div class="block-title">📁 Raw Data Layer</div>
+                        <div class="block-content">
+                            <ul>
+                                <li>STA reports (Primetime, Tempus, etc.)</li>
+                                <li>Netlists (Verilog/VHDL)</li>
+                                <li>Constraints (SDC/UPF)</li>
+                                <li>Libraries (.lib/.db)</li>
+                                <li>RC parasitics (SPEF/SDF)</li>
+                                <li>Layout data (DEF/GDS)</li>
+                            </ul>
+                            <strong>Status:</strong> Never leaves customer infrastructure
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">⚙️ Heuristics Engine</div>
+                        <div class="block-content">
+                            <ul>
+                                <li>Report parsers (70% of logic)</li>
+                                <li>Metric extraction</li>
+                                <li>Violation classification</li>
+                                <li>Pattern recognition</li>
+                                <li>Issue prioritization</li>
+                                <li>Corner/mode analysis</li>
+                            </ul>
+                            <strong>Deployed:</strong> Customer-side executable
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">🗄️ Local Vector DB</div>
+                        <div class="block-content">
+                            <ul>
+                                <li>Customer design docs</li>
+                                <li>Internal methodologies</li>
+                                <li>Project-specific notes</li>
+                                <li>Historical closure data</li>
+                                <li>Team knowledge base</li>
+                            </ul>
+                            <strong>Isolation:</strong> Customer-specific, encrypted at rest
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">💻 Frontend UI</div>
+                        <div class="block-content">
+                            <ul>
+                                <li>Violation viewers</li>
+                                <li>Interactive chat interface</li>
+                                <li>Guided workflows</li>
+                                <li>Iteration tracking</li>
+                                <li>Team collaboration</li>
+                            </ul>
+                            <strong>Access:</strong> Customer network only
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">🎯 Feature Extractor</div>
+                        <div class="block-content">
+                            <ul>
+                                <li>Anonymization layer</li>
+                                <li>Statistical summaries</li>
+                                <li>Abstracted graph structures</li>
+                                <li>No cell/net names transmitted</li>
+                                <li>Differential privacy applied</li>
+                            </ul>
+                            <strong>Critical:</strong> Anonymization happens HERE before any transmission
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="security-note">
+                    <strong>🛡️ Security Guarantee:</strong> All sensitive design data remains on customer infrastructure. Feature Extractor anonymizes data BEFORE transmission. No raw reports, netlists, or proprietary design information ever transmitted externally.
+                </div>
+            </div>
+            
+            <div class="arrow">⬍⬍⬍ Encrypted API (Anonymized Feature Vectors Only) ⬍⬍⬍</div>
+            
+            <!-- Hybrid Communication Layer -->
+            <div class="layer hybrid-layer">
+                <div class="layer-title">
+                    <span class="icon">🔄</span>
+                    HYBRID COMMUNICATION LAYER
+                </div>
+                <div class="blocks">
+                    <div class="block">
+                        <div class="block-title">🔐 API Gateway</div>
+                        <div class="block-content">
+                            <ul>
+                                <li>TLS 1.3 encryption</li>
+                                <li>Mutual authentication</li>
+                                <li>Token-based authorization</li>
+                                <li>Rate limiting</li>
+                                <li>Audit logging</li>
+                            </ul>
+                            <strong>Role:</strong> Secure transport only, no data transformation
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">🔒 Secure Channel</div>
+                        <div class="block-content">
+                            <ul>
+                                <li>End-to-end encryption</li>
+                                <li>Certificate pinning</li>
+                                <li>Perfect forward secrecy</li>
+                                <li>Zero-knowledge routing</li>
+                            </ul>
+                            <strong>Key:</strong> Pure transport layer - already-anonymized data in transit
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">🔁 Response Handler</div>
+                        <div class="block-content">
+                            <ul>
+                                <li>Receives general recommendations</li>
+                                <li>Routes back to customer premises</li>
+                                <li>Response validation</li>
+                                <li>Format consistency</li>
+                            </ul>
+                            <strong>Note:</strong> Re-contextualization happens on customer side
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="security-note">
+                    <strong>⚡ Data Flow:</strong> Anonymized features arrive already processed → Secure transport to AI infrastructure → General recommendations returned → Customer re-contextualizes locally with actual design names/details
+                </div>
+            </div>
+            
+            <div class="arrow">⬍⬍⬍ Protected Model Inference ⬍⬍⬍</div>
+            
+            <!-- Consultant Infrastructure Layer -->
+            <div class="layer consultant-layer">
+                <div class="layer-title">
+                    <span class="icon">🏢</span>
+                    CONSULTANT-MANAGED INFRASTRUCTURE (Your Protected IP)
+                </div>
+                <div class="blocks">
+                    <div class="block">
+                        <div class="block-title">🤖 Base Models (Protected)</div>
+                        <div class="block-content">
+                            <ul>
+                                <li>Core LLM (Claude/GPT)</li>
+                                <li>Specialized STA reasoning model</li>
+                                <li>Fine-tuned on general EDA knowledge</li>
+                                <li>Timing-closure methodologies</li>
+                            </ul>
+                            <strong>Protection:</strong> Never exposed, inference only via API
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">🧠 RAG Orchestration</div>
+                        <div class="block-content">
+                            <ul>
+                                <li>General design methodology DB</li>
+                                <li>EDA tool documentation</li>
+                                <li>Industry best practices</li>
+                                <li>Vendor app notes</li>
+                                <li>Query routing logic (proprietary)</li>
+                            </ul>
+                            <strong>IP:</strong> Your orchestration logic stays private
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">🎭 Agentic Workflows</div>
+                        <div class="block-content">
+                            <ul>
+                                <li>Multi-step reasoning chains</li>
+                                <li>Domain cross-referencing</li>
+                                <li>Root cause analysis agents</li>
+                                <li>Fix recommendation pipeline</li>
+                            </ul>
+                            <strong>Secret Sauce:</strong> Your workflow logic
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">📊 Analytics & Monitoring</div>
+                        <div class="block-content">
+                            <ul>
+                                <li>Usage patterns (anonymized)</li>
+                                <li>Model performance metrics</li>
+                                <li>Feature effectiveness</li>
+                                <li>System health dashboards</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="security-note">
+                    <strong>🏆 Your Competitive Advantage:</strong> All core AI logic, models, RAG flows, and agentic reasoning stay on your infrastructure. Customers get benefits without seeing how it works.
+                </div>
+            </div>
+        </div>
+        
+        <!-- Training Strategy Section -->
+        <div class="training-section">
+            <div class="training-title">
+                <span class="icon">🎓</span>
+                CUSTOMER-SPECIFIC TRAINING STRATEGY
+            </div>
+            
+            <div class="training-flow">
+                <div class="training-step">
+                    <div class="training-step-title">Option 1: Federated Learning</div>
+                    <div class="training-step-content">
+                        <strong>How:</strong> Model updates trained on customer premises, only weight gradients sent back (encrypted).<br><br>
+                        <strong>Pros:</strong> Data never leaves customer. Can aggregate learning across multiple customers.<br><br>
+                        <strong>Use:</strong> When you need to improve base model with customer patterns.
+                    </div>
+                </div>
+                
+                <div class="training-step">
+                    <div class="training-step-title">Option 2: LoRA/Adapter Fine-tuning</div>
+                    <div class="training-step-content">
+                        <strong>How:</strong> Deploy small adapter layers on customer premises. Customer trains adapters locally, you maintain base model.<br><br>
+                        <strong>Pros:</strong> Customer gets customization, your base model stays protected. Fast training.<br><br>
+                        <strong>Use:</strong> Per-customer specialization without exposing core IP.
+                    </div>
+                </div>
+                
+                <div class="training-step">
+                    <div class="training-step-title">Option 3: Knowledge Distillation</div>
+                    <div class="training-step-content">
+                        <strong>How:</strong> Customer provides labeled examples. You train a customer-specific distilled model on your infrastructure.<br><br>
+                        <strong>Pros:</strong> You control training. Customer gets optimized inference.<br><br>
+                        <strong>Use:</strong> When customer trusts you with anonymized training data.
+                    </div>
+                </div>
+                
+                <div class="training-step">
+                    <div class="training-step-title">Option 4: RAG Augmentation</div>
+                    <div class="training-step-content">
+                        <strong>How:</strong> Customer populates local vector DB with their specific knowledge. No model training needed.<br><br>
+                        <strong>Pros:</strong> Simplest. Immediate customization. Zero data exposure.<br><br>
+                        <strong>Use:</strong> Quick wins, methodology customization, team knowledge capture.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="key-principles">
+                <h3>🎯 Recommended Hybrid Approach:</h3>
+                <ul>
+                    <li><strong>Phase 0-1:</strong> Start with Option 4 (RAG augmentation) - fastest value, zero data risk</li>
+                    <li><strong>Phase 2:</strong> Add Option 2 (LoRA adapters) for customers wanting deeper customization</li>
+                    <li><strong>Phase 3:</strong> Offer Option 1 (Federated learning) to premium customers, aggregate insights to improve base model</li>
+                    <li><strong>Throughout:</strong> Use differential privacy, secure enclaves, and encrypted computation where needed</li>
+                    <li><strong>Licensing:</strong> Charge premium for customer-specific model variants; position as competitive advantage</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box" style="background: #f0fff4; border-color: #48bb78;"></div>
+                <span>Customer Data & Control</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #fffaf0; border-color: #ed8936;"></div>
+                <span>Secure Communication</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #ebf8ff; border-color: #4299e1;"></div>
+                <span>Your Protected IP</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #faf5ff; border-color: #9f7aea;"></div>
+                <span>Training Strategy</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
