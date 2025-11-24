@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STA GenAI Copilot - Interactive Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 32px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .click-instruction {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .architecture {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        .layer {
+            border-radius: 12px;
+            padding: 30px;
+            position: relative;
+        }
+        .layer-title {
+            font-weight: bold;
+            font-size: 24px;
+            margin-bottom: 25px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .layer-icon {
+            font-size: 32px;
+        }
+        .blocks-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .block {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .block:hover::before {
+            opacity: 1;
+        }
+        .block:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+        }
+        .block-icon {
+            font-size: 36px;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+        .block:hover .block-icon {
+            transform: scale(1.2) rotate(5deg);
+        }
+        .block-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #2d3748;
+            position: relative;
+            z-index: 1;
+        }
+        .click-hint {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            font-size: 10px;
+            color: #667eea;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+        .block:hover .click-hint {
+            opacity: 1;
+        }
+        
+        /* Customer Layer */
+        .customer-layer {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 3px solid #28a745;
+        }
+        .customer-layer .layer-title {
+            color: #155724;
+        }
+        .customer-layer .block {
+            border: 2px solid #28a745;
+        }
+        
+        /* Hybrid Layer */
+        .hybrid-layer {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 3px solid #ffc107;
+        }
+        .hybrid-layer .layer-title {
+            color: #856404;
+        }
+        .hybrid-layer .block {
+            border: 2px solid #ffc107;
+        }
+        
+        /* Consultant Layer */
+        .consultant-layer {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            border: 3px solid #17a2b8;
+        }
+        .consultant-layer .layer-title {
+            color: #0c5460;
+        }
+        .consultant-layer .block {
+            border: 2px solid #17a2b8;
+        }
+        
+        .flow-arrow {
+            text-align: center;
+            padding: 15px 0;
+            font-size: 20px;
+            font-weight: bold;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .flow-arrow::before,
+        .flow-arrow::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #4a5568, transparent);
+        }
+        
+        .security-badge {
+            position: absolute;
+            top: -15px;
+            right: 30px;
+            background: #dc3545;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal {
+            background: white;
+            border-radius: 16px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.4s ease;
+            position: relative;
+        }
+        @keyframes slideUp {
+            from { 
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal-header {
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px 16px 0 0;
+            position: relative;
+        }
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .modal-icon {
+            font-size: 32px;
+        }
+        .modal-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+        .modal-body {
+            padding: 30px;
+        }
+        .modal-section {
+            margin-bottom: 25px;
+        }
+        .modal-section-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #2d3748;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .modal-list {
+            list-style: none;
+            padding: 0;
+        }
+        .modal-list li {
+            padding: 8px 0 8px 24px;
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.6;
+            position: relative;
+        }
+        .modal-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .modal-highlight {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #667eea;
+        }
+        .modal-highlight strong {
+            color: #667eea;
+        }
+        
+        .key-points {
+            margin-top: 40px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            border-left: 6px solid #6f42c1;
+        }
+        .key-points h3 {
+            color: #6f42c1;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .key-points ul {
+            list-style: none;
+            padding: 0;
+        }
+        .key-points li {
+            padding: 8px 0;
+            font-size: 15px;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .key-points li::before {
+            content: '✔';
+            color: #28a745;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        @media (max-width: 768px) {
+            .blocks-container {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .layer-title {
+                font-size: 20px;
+            }
+            .modal {
+                margin: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 STA GenAI Copilot</h1>
+        <div class="subtitle">Interactive High-Level Architecture</div>
+        <div class="click-instruction">👆 Click any component to see detailed information</div>
+        
+        <div class="architecture">
+            <!-- Customer Premises Layer -->
+            <div class="layer customer-layer">
+                <div class="security-badge">🔒 CUSTOMER CONTROLLED</div>
+                <div class="layer-title">
+                    <span class="layer-icon">🏢</span>
+                    <span>CUSTOMER PREMISES / VPC</span>
+                </div>
+                <div class="blocks-container">
+                    <div class="block" onclick="showModal('raw-data')">
+                        <div class="block-icon">📁</div>
+                        <div class="block-title">Raw Data Layer</div>
+                        <div class="click-hint">Click for details</div>
+                    </div>
+                    <div class="block" onclick="showModal('heuristics')">
+                        <div class="block-icon">⚙️</div>
+                        <div class="block-title">Heuristics Engine</div>
+                        <div class="click-hint">Click for details</div>
+                    </div>
+                    <div class="block" onclick="showModal('vector-db')">
+                        <div class="block-icon">🗄️</div>
+                        <div class="block-title">Local Vector DB</div>
+                        <div class="click-hint">Click for details</div>
+                    </div>
+                    <div class="block" onclick="showModal('frontend')">
+                        <div class="block-icon">💻</div>
+                        <div class="block-title">Frontend UI</div>
+                        <div class="click-hint">Click for details</div>
+                    </div>
+                    <div class="block" onclick="showModal('feature-extractor')">
+                        <div class="block-icon">🎯</div>
+                        <div class="block-title">Feature Extractor</div>
+                        <div class="click-hint">Click for details</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flow-arrow">
+                ⬇ Anonymized Features Only ⬇
+            </div>
+            
+            <!-- Hybrid Communication Layer -->
+            <div class="layer hybrid-layer">
+                <div class="security-badge">🔐 ENCRYPTED TRANSPORT</div>
+                <div class="layer-title">
+                    <span class="layer-icon">🔄</span>
+                    <span>HYBRID COMMUNICATION LAYER</span>
+                </div>
+                <div class="blocks-container">
+                    <div class="block" onclick="showModal('api-gateway')">
+                        <div class="block-icon">🚪</div>
+                        <div class="block-title">API Gateway</div>
+                        <div class="click-hint">Click for details</div>
+                    </div>
+                    <div class="block" onclick="showModal('secure-channel')">
+                        <div class="block-icon">🔒</div>
+                        <div class="block-title">Secure Channel</div>
+                        <div class="click-hint">Click for details</div>
+                    </div>
+                    <div class="block" onclick="showModal('response-handler')">
+                        <div class="block-icon">🔁</div>
+                        <div class="block-title">Response Handler</div>
+                        <div class="click-hint">Click for details</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flow-arrow">
+                ⬇ Protected Inference Requests ⬇
+            </div>
+            
+            <!-- Consultant Infrastructure Layer -->
+            <div class="layer consultant-layer">
+                <div class="security-badge">🛡️ YOUR PROTECTED IP</div>
+                <div class="layer-title">
+                    <span class="layer-icon">☁️</span>
+                    <span>CONSULTANT INFRASTRUCTURE</span>
+                </div>
+                <div class="blocks-container">
+                    <div class="block" onclick="showModal('base-models')">
+                        <div class="block-icon">🤖</div>
+                        <div class="block-title">Base Models</div>
+                        <div class="click-hint">Click for details</div>
+                    </div>
+                    <div class="block" onclick="showModal('rag-orchestration')">
+                        <div class="block-icon">🧠</div>
+                        <div class="block-title">RAG Orchestration</div>
+                        <div class="click-hint">Click for details</div>
+                    </div>
+                    <div class="block" onclick="showModal('agentic-workflows')">
+                        <div class="block-icon">🎭</div>
+                        <div class="block-title">Agentic Workflows</div>
+                        <div class="click-hint">Click for details</div>
+                    </div>
+                    <div class="block" onclick="showModal('analytics')">
+                        <div class="block-icon">📊</div>
+                        <div class="block-title">Analytics & Training</div>
+                        <div class="click-hint">Click for details</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="key-points">
+            <h3>🎯 Architecture Principles</h3>
+            <ul>
+                <li>All sensitive design data remains on customer premises</li>
+                <li>Feature extraction and anonymization happen before any transmission</li>
+                <li>Hybrid layer provides secure, encrypted transport only</li>
+                <li>Your AI models and reasoning logic stay completely protected</li>
+                <li>Customers benefit from intelligence without exposing their IP or seeing yours</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+                <div class="modal-title">
+                    <span class="modal-icon" id="modalIcon"></span>
+                    <span id="modalTitle"></span>
+                </div>
+                <div class="modal-subtitle" id="modalSubtitle"></div>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const modalData = {
+            'raw-data': {
+                icon: '📁',
+                title: 'Raw Data Layer',
+                subtitle: 'Customer Premises - Complete Data Privacy',
+                content: `
+                    <div class="modal-section">
+                        <div class="modal-section-title">Core Components</div>
+                        <ul class="modal-list">
+                            <li>Timing reports (text files)</li>
+                            <li>Log files from STA tools</li>
+                            <li>Cell library characteristics (sanitized)</li>
+                            <li>Design netlist metadata (no actual RTL)</li>
+                            <li>Constraint files (SDC)</li>
+                        </ul>
+                    </div>
+                    <div class="modal-highlight">
+                        <strong>🔒 Security Note:</strong> All actual design IP (RTL, netlists, proprietary libraries) stays here. Never transmitted anywhere.
+                    </div>
+                    <div class="modal-section">
+                        <div class="modal-section-title">Key Features</div>
+                        <ul class="modal-list">
+                            <li>Complete isolation from external networks</li>
+                            <li>Customer has full control and access</li>
+                            <li>Standard file formats for EDA tools</li>
+                            <li>No processing happens externally</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'heuristics': {
+                icon: '⚙️',
+                title: 'Heuristics Engine',
+                subtitle: 'Customer Premises - Local Analysis',
+                content: `
+                    <div class="modal-section">
+                        <div class="modal-section-title">Capabilities</div>
+                        <ul class="modal-list">
+                            <li>Parse timing reports locally</li>
+                            <li>Extract path structures (fanout, depth, stages)</li>
+                            <li>Identify critical path patterns</li>
+                            <li>Compute statistical timing metrics</li>
+                            <li>Flag common design issues</li>
+                        </ul>
+                    </div>
+                    <div class="modal-highlight">
+                        <strong>⚡ Key Principle:</strong> Traditional rule-based analysis happens here first. AI augments, doesn't replace.
+                    </div>
+                    <div class="modal-section">
+                        <div class="modal-section-title">Processing Flow</div>
+                        <ul class="modal-list">
+                            <li>Reads raw timing data</li>
+                            <li>Applies domain-specific rules</li>
+                            <li>Generates initial recommendations</li>
+                            <li>Prepares anonymized features for AI analysis</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'vector-db': {
+                icon: '🗄️',
+                title: 'Local Vector DB',
+                subtitle: 'Customer Premises - Knowledge Base',
+                content: `
+                    <div class="modal-section">
+                        <div class="modal-section-title">Stored Information</div>
+                        <ul class="modal-list">
+                            <li>Company-specific design methodologies</li>
+                            <li>Team best practices and solutions</li>
+                            <li>Historical fix patterns</li>
+                            <li>Internal documentation embeddings</li>
+                            <li>Custom constraint templates</li>
+                        </ul>
+                    </div>
+                    <div class="modal-highlight">
+                        <strong>🎯 Purpose:</strong> RAG augmentation with zero data exposure. Customer populates with their IP.
+                    </div>
+                    <div class="modal-section">
+                        <div class="modal-section-title">Benefits</div>
+                        <ul class="modal-list">
+                            <li>Immediate customization without training</li>
+                            <li>Team knowledge capture and reuse</li>
+                            <li>Context-aware recommendations</li>
+                            <li>No external data transmission needed</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'frontend': {
+                icon: '💻',
+                title: 'Frontend UI',
+                subtitle: 'Customer Premises - User Interface',
+                content: `
+                    <div class="modal-section">
+                        <div class="modal-section-title">Interface Features</div>
+                        <ul class="modal-list">
+                            <li>Upload timing reports / logs</li>
+                            <li>Natural language query interface</li>
+                            <li>View AI recommendations with context</li>
+                            <li>Approve/reject suggestions</li>
+                            <li>Export actionable fixes</li>
+                        </ul>
+                    </div>
+                    <div class="modal-section">
+                        <div class="modal-section-title">User Experience</div>
+                        <ul class="modal-list">
+                            <li>Chat-based interaction with copilot</li>
+                            <li>Visual path analysis and highlighting</li>
+                            <li>Confidence scores for recommendations</li>
+                            <li>Integration with EDA tools</li>
+                            <li>Customizable dashboards</li>
+                        </ul>
+                    </div>
+                    <div class="modal-highlight">
+                        <strong>👥 Design:</strong> Engineer-friendly interface that fits into existing workflows.
+                    </div>
+                `
+            },
+            'feature-extractor': {
+                icon: '🎯',
+                title: 'Feature Extractor',
+                subtitle: 'Customer Premises - Privacy Protection',
+                content: `
+                    <div class="modal-section">
+                        <div class="modal-section-title">Anonymization Process</div>
+                        <ul class="modal-list">
+                            <li>Strip all design-specific names (signals, modules, instances)</li>
+                            <li>Convert to generic identifiers (PATH_001, CELL_TYPE_A)</li>
+                            <li>Extract only structural/statistical features</li>
+                            <li>Remove vendor-specific library details</li>
+                            <li>Hash and salt any necessary references</li>
+                        </ul>
+                    </div>
+                    <div class="modal-highlight">
+                        <strong>🔐 Critical Role:</strong> This is the privacy barrier. Only anonymized, generic features cross this boundary.
+                    </div>
+                    <div class="modal-section">
+                        <div class="modal-section-title">Extracted Features</div>
+                        <ul class="modal-list">
+                            <li>Path depth, fanout metrics</li>
+                            <li>Timing margins (anonymized)</li>
+                            <li>Generic cell type patterns</li>
+                            <li>Clock domain relationships</li>
+                            <li>Statistical distributions</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'api-gateway': {
+                icon: '🚪',
+                title: 'API Gateway',
+                subtitle: 'Hybrid Layer - Secure Transport',
+                content: `
+                    <div class="modal-section">
+                        <div class="modal-section-title">Security Features</div>
+                        <ul class="modal-list">
+                            <li>TLS 1.3 encryption</li>
+                            <li>Mutual authentication</li>
+                            <li>Token-based authorization</li>
+                            <li>Rate limiting</li>
+                            <li>Audit logging</li>
+                        </ul>
+                    </div>
+                    <div class="modal-highlight">
+                        <strong>🔒 Role:</strong> Secure transport only, no data transformation. Acts as a dumb pipe.
+                    </div>
+                    <div class="modal-section">
+                        <div class="modal-section-title">Responsibilities</div>
+                        <ul class="modal-list">
+                            <li>Authenticate both parties</li>
+                            <li>Route requests to AI infrastructure</li>
+                            <li>Enforce access policies</li>
+                            <li>Monitor for anomalies</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'secure-channel': {
+                icon: '🔒',
+                title: 'Secure Channel',
+                subtitle: 'Hybrid Layer - Encrypted Transport',
+                content: `
+                    <div class="modal-section">
+                        <div class="modal-section-title">Encryption Features</div>
+                        <ul class="modal-list">
+                            <li>End-to-end encryption</li>
+                            <li>Certificate pinning</li>
+                            <li>Perfect forward secrecy</li>
+                            <li>Zero-knowledge routing</li>
+                        </ul>
+                    </div>
+                    <div class="modal-highlight">
+                        <strong>🎯 Key Principle:</strong> Pure transport layer - already-anonymized data in transit
+                    </div>
+                    <div class="modal-section">
+                        <div class="modal-section-title">Security Guarantees</div>
+                        <ul class="modal-list">
+                            <li>No data logging or storage</li>
+                            <li>No inspection of payload</li>
+                            <li>Tamper-proof transmission</li>
+                            <li>Session-based ephemeral keys</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'response-handler': {
+                icon: '🔁',
+                title: 'Response Handler',
+                subtitle: 'Hybrid Layer - Return Path',
+                content: `
+                    <div class="modal-section">
+                        <div class="modal-section-title">Processing Flow</div>
+                        <ul class="modal-list">
+                            <li>Receives general recommendations from AI</li>
+                            <li>Routes back to customer premises</li>
+                            <li>Response validation and formatting</li>
+                            <li>Format consistency checks</li>
+                        </ul>
+                    </div>
+                    <div class="modal-highlight">
+                        <strong>💡 Note:</strong> Re-contextualization happens on customer side. This just delivers generic recommendations.
+                    </div>
+                    <div class="modal-section">
+                        <div class="modal-section-title">Data Flow</div>
+                        <ul class="modal-list">
+                            <li>Anonymized features arrive already processed</li>
+                            <li>Secure transport to AI infrastructure</li>
+                            <li>General recommendations returned</li>
+                            <li>Customer re-contextualizes locally with actual design names/details</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'base-models': {
+                icon: '🤖',
+                title: 'Base Models (Protected)',
+                subtitle: 'Consultant Infrastructure - Your AI Core',
+                content: `
+                    <div class="modal-section">
+                        <div class="modal-section-title">Model Components</div>
+                        <ul class="modal-list">
+                            <li>Core LLM (Claude/GPT)</li>
+                            <li>Specialized STA reasoning model</li>
+                            <li>Fine-tuned on general EDA knowledge</li>
+                            <li>Timing-closure methodologies</li>
+                        </ul>
+                    </div>
+                    <div class="modal-highlight">
+                        <strong>🛡️ Protection:</strong> Never exposed, inference only via API. This is your core IP.
+                    </div>
+                    <div class="modal-section">
+                        <div class="modal-section-title">Training Strategy</div>
+                        <ul class="modal-list">
+                            <li>Pre-trained on public EDA documentation</li>
+                            <li>Fine-tuned on synthetic STA scenarios</li>
+                            <li>Continuous improvement from aggregated anonymized patterns</li>
+                            <li>No customer-specific training without consent</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'rag-orchestration': {
+                icon: '🧠',
+                title: 'RAG Orchestration',
+                subtitle: 'Consultant Infrastructure - Knowledge Augmentation',
+                content: `
+                    <div class="modal-section">
+                        <div class="modal-section-title">Knowledge Sources</div>
+                        <ul class="modal-list">
+                            <li>General design methodology database</li>
+                            <li>EDA tool documentation</li>
+                            <li>Industry best practices</li>
+                            <li>Vendor application notes</li>
+                            <li>Query routing logic (proprietary)</li>
+                        </ul>
+                    </div>
+                    <div class="modal-highlight">
+                        <strong>🎯 Your IP:</strong> Orchestration logic and knowledge curation strategies stay private
+                    </div>
+                    <div class="modal-section">
+                        <div class="modal-section-title">Processing Flow</div>
+                        <ul class="modal-list">
+                            <li>Semantic search across knowledge bases</li>
+                            <li>Context assembly for LLM</li>
+                            <li>Relevance ranking and filtering</li>
+                            <li>Multi-source information fusion</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'agentic-workflows': {
+                icon: '🎭',
+                title: 'Agentic Workflows',
+                subtitle: 'Consultant Infrastructure - Intelligent Reasoning',
+                content: `
+                    <div class="modal-section">
+                        <div class="modal-section-title">Workflow Capabilities</div>
+                        <ul class="modal-list">
+                            <li>Multi-step reasoning chains</li>
+                            <li>Domain cross-referencing</li>
+                            <li>Root cause analysis agents</li>
+                            <li>Fix recommendation pipeline</li>
+                        </ul>
+                    </div>
+                    <div class="modal-highlight">
+                        <strong>🔬 Secret Sauce:</strong> Your workflow logic and reasoning strategies are protected intellectual property
+                    </div>
+                    <div class="modal-section">
+                        <div class="modal-section-title">Agent Types</div>
+                        <ul class="modal-list">
+                            <li>Diagnostic agent: Identifies timing issues</li>
+                            <li>Analysis agent: Deep-dives into root causes</li>
+                            <li>Recommendation agent: Suggests fixes</li>
+                            <li>Validation agent: Checks solution feasibility</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'analytics': {
+                icon: '📊',
+                title: 'Analytics & Monitoring',
+                subtitle: 'Consultant Infrastructure - System Intelligence',
+                content: `
+                    <div class="modal-section">
+                        <div class="modal-section-title">Metrics Tracked</div>
+                        <ul class="modal-list">
+                            <li>Usage patterns (anonymized)</li>
+                            <li>Model performance metrics</li>
+                            <li>Feature effectiveness</li>
+                            <li>System health dashboards</li>
+                        </ul>
+                    </div>
+                    <div class="modal-section">
+                        <div class="modal-section-title">Training Options</div>
+                        <ul class="modal-list">
+                            <li>Federated learning across customers</li>
+                            <li>LoRA/Adapter fine-tuning</li>
+                            <li>Knowledge distillation</li>
+                            <li>RAG augmentation (no training needed)</li>
+                        </ul>
+                    </div>
+                    <div class="modal-highlight">
+                        <strong>🏆 Competitive Advantage:</strong> Aggregate insights improve your models while protecting each customer's privacy
+                    </div>
+                `
+            }
+        };
+
+        function showModal(componentId) {
+            const data = modalData[componentId];
+            if (!data) return;
+
+            document.getElementById('modalIcon').textContent = data.icon;
+            document.getElementById('modalTitle').textContent = data.title;
+            document.getElementById('modalSubtitle').textContent = data.subtitle;
+            document.getElementById('modalBody').innerHTML = data.content;
+            document.getElementById('modalOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
